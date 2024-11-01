@@ -1,0 +1,481 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "PNP_HUB V6.PRO", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+
+local Tab = Window:MakeTab({
+    Name = "Farm",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local Section = Tab:AddSection({
+    Name = "เมนูฟาร์ม"
+})
+
+local function ShowNotification(message)
+    OrionLib:MakeNotification({
+        Name = "Notification",
+        Content = message,
+        Image = "rbxassetid://4483345998",
+        Time = 5
+    })
+end
+
+local Enabled = false
+local SellEnabled = false -- Variable to track sell status
+
+-- Function to cast bait
+local function CastBait()
+    local LocalPlayer = game.Players.LocalPlayer
+    local args = {
+        [1] = 100,
+        [2] = 1
+    }
+
+    local character = LocalPlayer.Character
+    if character then
+        for _, obj in pairs(character:GetChildren()) do
+            if obj:FindFirstChild("events") and obj.events:FindFirstChild("cast") then
+                obj.events.cast:FireServer(unpack(args))
+                break
+            end
+        end
+    else
+        warn("Character not found!")
+    end
+end
+
+-- Function to equip the first rod found in the backpack
+local function EquipRod()
+    local LocalPlayer = game.Players.LocalPlayer
+    local backpack = LocalPlayer.Backpack
+
+    while Enabled do
+        local itemToEquip = nil
+        for _, item in pairs(backpack:GetChildren()) do
+            if item:IsA("Tool") and item.Name:lower():find('rod') then
+                itemToEquip = item
+                break
+            end
+        end
+
+        if itemToEquip then
+            local args = { [1] = itemToEquip }
+            LocalPlayer.PlayerGui.hud.safezone.backpack.events.equip:FireServer(unpack(args))
+            ShowNotification("Equipped: " .. itemToEquip.Name)
+            task.wait(10) -- Wait longer to prevent unnecessary checks
+        else
+            task.wait(5) -- Wait before checking again
+        end
+    end
+end
+
+-- Function to sell all fish
+local function SellAllFish()
+    local LocalPlayer = game.Players.LocalPlayer
+
+    while SellEnabled do
+        local merchant = workspace.world.npcs:FindFirstChild("Marc Merchant")
+        if merchant and merchant:FindFirstChild("merchant") and merchant.merchant:FindFirstChild("sellall") then
+            merchant.merchant.sellall:InvokeServer()
+            ShowNotification("All fish sold!")
+        else
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "PNP_HUB V6.PRO", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+
+local Tab = Window:MakeTab({
+    Name = "Farm",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local Section = Tab:AddSection({
+    Name = "เมนูฟาร์ม"
+})
+
+local function ShowNotification(message)
+    OrionLib:MakeNotification({
+        Name = "Notification",
+        Content = message,
+        Image = "rbxassetid://4483345998",
+        Time = 5
+    })
+end
+
+local Enabled = false
+local SellEnabled = false -- Variable to track sell status
+
+-- Function to cast bait
+local function CastBait()
+    local LocalPlayer = game.Players.LocalPlayer
+    local args = {
+        [1] = 100,
+        [2] = 1
+    }
+
+    local character = LocalPlayer.Character
+    if character then
+        for _, obj in pairs(character:GetChildren()) do
+            if obj:FindFirstChild("events") and obj.events:FindFirstChild("cast") then
+                obj.events.cast:FireServer(unpack(args))
+                break
+            end
+        end
+    else
+        warn("Character not found!")
+    end
+end
+
+-- Function to equip the first rod found in the backpack
+local function EquipRod()
+    local LocalPlayer = game.Players.LocalPlayer
+    local backpack = LocalPlayer.Backpack
+
+    while Enabled do
+        local itemToEquip = nil
+        for _, item in pairs(backpack:GetChildren()) do
+            if item:IsA("Tool") and item.Name:lower():find('rod') then
+                itemToEquip = item
+                break
+            end
+        end
+
+        if itemToEquip then
+            local args = { [1] = itemToEquip }
+            LocalPlayer.PlayerGui.hud.safezone.backpack.events.equip:FireServer(unpack(args))
+            ShowNotification("Equipped: " .. itemToEquip.Name)
+            task.wait(10) -- Wait longer to prevent unnecessary checks
+        else
+            task.wait(5) -- Wait before checking again
+        end
+    end
+end
+
+-- Function to sell all fish
+local function SellAllFish()
+    local LocalPlayer = game.Players.LocalPlayer
+
+    while SellEnabled do
+        local merchant = workspace.world.npcs:FindFirstChild("Marc Merchant")
+        if merchant and merchant:FindFirstChild("merchant") and merchant.merchant:FindFirstChild("sellall") then
+            merchant.merchant.sellall:InvokeServer()
+            ShowNotification("All fish sold!")
+        else
+            ShowNotification("Merchant not found!")
+            break
+        end
+        task.wait(5) -- Wait before selling again, adjust as needed
+    end
+end
+
+Tab:AddToggle({
+    Name = "Auto Farm",
+    Default = false,
+    Callback = function(v)
+        Enabled = v
+        local LocalPlayer = game.Players.LocalPlayer
+
+        if not Enabled then
+            ShowNotification("Auto Farm Disabled")
+            SellEnabled = false -- Disable selling when auto farm is off
+            return
+        end
+
+        ShowNotification("Auto Farm Enabled")
+        coroutine.wrap(EquipRod)()
+
+        -- Start casting bait continuously
+        coroutine.wrap(function()
+            while Enabled do
+                CastBait()
+                task.wait(3)  -- Adjust wait time between casts as needed
+            end
+        end)()
+    end
+})
+
+-- Add the Sell All Fish toggle
+Tab:AddToggle({
+    Name = "ขายปลาทั้งหมด",
+    Default = false,
+    Callback = function(v)
+        SellEnabled = v
+
+        if not SellEnabled then
+            ShowNotification("Selling Disabled")
+            return
+        end
+
+        ShowNotification("Selling Enabled")
+        coroutine.wrap(SellAllFish)() -- Start the sell fish loop
+    end
+})
+
+-- Warp Tab
+local WarpTab = Window:MakeTab({
+    Name = "วาร์ปเกาะ",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = falselocal OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "PNP_HUB V6.PRO", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+
+local Tab = Window:MakeTab({
+    Name = "Farm",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local Section = Tab:AddSection({
+    Name = "เมนูฟาร์ม"
+})
+
+local function ShowNotification(message)
+    OrionLib:MakeNotification({
+        Name = "Notification",
+        Content = message,
+        Image = "rbxassetid://4483345998",
+        Time = 5
+    })
+end
+
+local Enabled = false
+local SellEnabled = false -- Variable to track sell status
+
+-- Function to cast bait
+local function CastBait()
+    local LocalPlayer = game.Players.LocalPlayer
+    local args = {
+        [1] = 100,
+        [2] = 1
+    }
+
+    local character = LocalPlayer.Character
+    if character then
+        for _, obj in pairs(character:GetChildren()) do
+            if obj:FindFirstChild("events") and obj.events:FindFirstChild("cast") then
+                obj.events.cast:FireServer(unpack(args))
+                break
+            end
+        end
+    else
+        warn("Character not found!")
+    end
+end
+
+-- Function to equip the first rod found in the backpack
+local function EquipRod()
+    local LocalPlayer = game.Players.LocalPlayer
+    local backpack = LocalPlayer.Backpack
+
+    while Enabled do
+        local itemToEquip = nil
+        for _, item in pairs(backpack:GetChildren()) do
+            if item:IsA("Tool") and item.Name:lower():find('rod') then
+                itemToEquip = item
+                break
+            end
+        end
+
+        if itemToEquip then
+            local args = { [1] = itemToEquip }
+            LocalPlayer.PlayerGui.hud.safezone.backpack.events.equip:FireServer(unpack(args))
+            ShowNotification("Equipped: " .. itemToEquip.Name)
+            task.wait(10) -- Wait longer to prevent unnecessary checks
+        else
+            task.wait(5) -- Wait before checking again
+        end
+    end
+end
+
+-- Function to sell all fish
+local function SellAllFish()
+    local LocalPlayer = game.Players.LocalPlayer
+
+    while SellEnabled do
+        local merchant = workspace.world.npcs:FindFirstChild("Marc Merchant")
+        if merchant and merchant:FindFirstChild("merchant") and merchant.merchant:FindFirstChild("sellall") then
+            merchant.merchant.sellall:InvokeServer()
+            ShowNotification("All fish sold!")
+        else
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "PNP_HUB V6.PRO", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+
+local Tab = Window:MakeTab({
+    Name = "Farm",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local Section = Tab:AddSection({
+    Name = "เมนูฟาร์ม"
+})
+
+local function ShowNotification(message)
+    OrionLib:MakeNotification({
+        Name = "Notification",
+        Content = message,
+        Image = "rbxassetid://4483345998",
+        Time = 5
+    })
+end
+
+local Enabled = false
+local SellEnabled = false -- Variable to track sell status
+
+-- Function to cast bait
+local function CastBait()
+    local LocalPlayer = game.Players.LocalPlayer
+    local args = {
+        [1] = 100,
+        [2] = 1
+    }
+
+    local character = LocalPlayer.Character
+    if character then
+        for _, obj in pairs(character:GetChildren()) do
+            if obj:FindFirstChild("events") and obj.events:FindFirstChild("cast") then
+                obj.events.cast:FireServer(unpack(args))
+                break
+            end
+        end
+    else
+        warn("Character not found!")
+    end
+end
+
+-- Function to equip the first rod found in the backpack
+local function EquipRod()
+    local LocalPlayer = game.Players.LocalPlayer
+    local backpack = LocalPlayer.Backpack
+
+    while Enabled do
+        local itemToEquip = nil
+        for _, item in pairs(backpack:GetChildren()) do
+            if item:IsA("Tool") and item.Name:lower():find('rod') then
+                itemToEquip = item
+                break
+            end
+        end
+
+        if itemToEquip then
+            local args = { [1] = itemToEquip }
+            LocalPlayer.PlayerGui.hud.safezone.backpack.events.equip:FireServer(unpack(args))
+            ShowNotification("Equipped: " .. itemToEquip.Name)
+            task.wait(10) -- Wait longer to prevent unnecessary checks
+        else
+            task.wait(5) -- Wait before checking again
+        end
+    end
+end
+
+-- Function to sell all fish
+local function SellAllFish()
+    local LocalPlayer = game.Players.LocalPlayer
+
+    while SellEnabled do
+        local merchant = workspace.world.npcs:FindFirstChild("Marc Merchant")
+        if merchant and merchant:FindFirstChild("merchant") and merchant.merchant:FindFirstChild("sellall") then
+            merchant.merchant.sellall:InvokeServer()
+            ShowNotification("All fish sold!")
+        else
+            ShowNotification("Merchant not found!")
+            break
+        end
+        task.wait(5) -- Wait before selling again, adjust as needed
+    end
+end
+
+Tab:AddToggle({
+    Name = "Auto Farm",
+    Default = false,
+    Callback = function(v)
+        Enabled = v
+        local LocalPlayer = game.Players.LocalPlayer
+
+        if not Enabled then
+            ShowNotification("Auto Farm Disabled")
+            SellEnabled = false -- Disable selling when auto farm is off
+            return
+        end
+
+        ShowNotification("Auto Farm Enabled")
+        coroutine.wrap(EquipRod)()
+
+        -- Start casting bait continuously
+        coroutine.wrap(function()
+            while Enabled do
+                CastBait()
+                task.wait(3)  -- Adjust wait time between casts as needed
+            end
+        end)()
+    end
+})
+
+-- Add the Sell All Fish toggle
+Tab:AddToggle({
+    Name = "ขายปลาทั้งหมด",
+    Default = false,
+    Callback = function(v)
+        SellEnabled = v
+
+        if not SellEnabled then
+            ShowNotification("Selling Disabled")
+            return
+        end
+
+        ShowNotification("Selling Enabled")
+        coroutine.wrap(SellAllFish)() -- Start the sell fish loop
+    end
+})
+
+-- Warp Tab
+local WarpTab = Window:MakeTab({
+    Name = "วาร์ปเกาะ",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- Warp buttons
+local warpLocations = {
+    {Name = "Moosewood", CFrame = CFrame.new(500.488434, 147.40181, 219.991364)},
+    {Name = "ที่เอ็นชาตเบ็ด", CFrame = CFrame.new(1294.57568, -807.365051, -307.565216)},
+    {Name = "Roslit", CFrame = CFrame.new(-1510.43311, 129.750626, 615.421875)},
+    {Name = "Snowcap", CFrame = CFrame.new(2671.10767, 148.350555, 2388.95117)},
+    {Name = "Sunstone", CFrame = CFrame.new(-902.682922, 136.266068, -1128.6886)},
+    {Name = "ถ้ำใต้น้ำวน", CFrame = CFrame.new(-78.5218506, -482.720367, 1040.32788)}
+}
+
+for _, location in ipairs(warpLocations) do
+    WarpTab:AddButton({
+        Name = location.Name,
+        Callback = function()
+            local Tween = game:GetService("TweenService")
+            Tween:Create(game.Players.LocalPlayer.Character.HumanoidRootPart, TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
+            {CFrame = location.CFrame}):Play()
+        end
+    })
+end
+
+OrionLib:Init()
+})
+
+-- Warp buttons
+local warpLocations = {
+    {Name = "Moosewood", CFrame = CFrame.new(500.488434, 147.40181, 219.991364)},
+    {Name = "ที่เอ็นชาตเบ็ด", CFrame = CFrame.new(1294.57568, -807.365051, -307.565216)},
+    {Name = "Roslit", CFrame = CFrame.new(-1510.43311, 129.750626, 615.421875)},
+    {Name = "Snowcap", CFrame = CFrame.new(2671.10767, 148.350555, 2388.95117)},
+    {Name = "Sunstone", CFrame = CFrame.new(-902.682922, 136.266068, -1128.6886)},
+    {Name = "ถ้ำใต้น้ำวน", CFrame = CFrame.new(-78.5218506, -482.720367, 1040.32788)}
+}
+
+for _, location in ipairs(warpLocations) do
+    WarpTab:AddButton({
+        Name = location.Name,
+        Callback = function()
+            local Tween = game:GetService("TweenService")
+            Tween:Create(game.Players.LocalPlayer.Character.HumanoidRootPart, TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
+            {CFrame = location.CFrame}):Play()
+        end
+    })
+end
+
+OrionLib:Init()
